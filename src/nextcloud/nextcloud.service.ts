@@ -5,8 +5,8 @@ import { Injectable } from '@nestjs/common';
 export class NextcloudService {
   private readonly baseUrl = `${process.env.BASE_URL}`;
   private readonly auth = {
-    username: `${process.env.USERNAME}`,
-    password: `${process.env.PASSWORD}`,
+    username: 'talentup',
+    password: 'Madastart1234*',
   };
 
   public async createDirectory(directoryPath: string): Promise<void> {

@@ -14,7 +14,7 @@ export class ApprenantEntity {
   @PrimaryGeneratedColumn('uuid')
   apprenant_id: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   keycloak_id: string;
 
   @Column({ type: 'jsonb', nullable: false, unique: true })

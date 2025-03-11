@@ -2,12 +2,11 @@ import {
   BadRequestException,
   Body,
   Controller,
-  UploadedFiles,
 } from '@nestjs/common';
 import { WebinaireService } from './webinaire.service';
-import { MessagePattern } from '@nestjs/microservices';
+import { MessagePattern, Payload } from '@nestjs/microservices';
 import { NextcloudService } from 'src/nextcloud/nextcloud.service';
-import { ICreateWebinaire } from './entity/ICreateWebinaire';
+import { TCreateWebinaire } from './entity/ICreateWebinaire';
 
 @Controller()
 export class WebinaireController {
@@ -17,50 +16,35 @@ export class WebinaireController {
   ) {}
 
   @MessagePattern('createWebinaire')
-  public async createWebinaire(
-    @UploadedFiles()
-    files: {
-      image: Express.Multer.File[];
-      source: Express.Multer.File[];
-    },
-    @Body() createWebinaireDto: ICreateWebinaire,
-  ) {
-    const imageFile = files.image[0];
-    const sourceFile = files.source[0];
+  public async createWebinaire(@Payload() dataInfoWebinaire: TCreateWebinaire) {
+    const { image, source } = dataInfoWebinaire;
 
-    if (!imageFile || !sourceFile) {
-      throw new BadRequestException(
-        'Les fichiers image et source sont requis.',
-      );
+    if (!image || !source) {
+      throw new BadRequestException('Les fichiers image et souce sont requis.');
     }
 
-    const imageFilePath = `/talentup/images/${Date.now()}-${imageFile.originalname}`;
-    const sourceFilePath = `/talentup/sources/${Date.now()}-${sourceFile.originalname}`;
+    const imageFilePath = `/talentup/images/${Date.now()}-${image.originalname}`;
+    const sourceFilePath = `/talentup/sources/${Date.now()}-${source.originalname}`;
 
     const imageUrl = await this.nextcloudService.uploadFile(
       imageFilePath,
-      imageFile.buffer,
+      image.buffer,
     );
+    console.log('imageUrl ', imageUrl);
 
     const sourceUrl = await this.nextcloudService.uploadFile(
       sourceFilePath,
-      sourceFile.buffer,
+      source.buffer,
     );
-
-    createWebinaireDto.image = imageUrl;
-
-    createWebinaireDto.source = sourceUrl;
+    console.log('sourceUrl', sourceUrl);
 
     const dataWebinaire = {
-      keycloak_id: createWebinaireDto.keycloak_id,
-      titre: createWebinaireDto.titre,
-      categorie: createWebinaireDto.categorie,
-      type: createWebinaireDto.type,
-      niveau: createWebinaireDto.niveau,
-      image: createWebinaireDto.image,
-      source: createWebinaireDto.source,
-      auteur: createWebinaireDto.auteur,
+      ...dataInfoWebinaire,
+      image: imageUrl,
+      source: sourceUrl,
     };
+    console.log(dataWebinaire);
+    
 
     return this.webinaireService.createWebinaire(dataWebinaire);
   }

@@ -11,4 +11,5 @@ export class ApprenantController {
     public createApprenant(dataApprenant: ICreateApprenant) {
         return this.apprenantService.createApprenant(dataApprenant);
     }
+
 }

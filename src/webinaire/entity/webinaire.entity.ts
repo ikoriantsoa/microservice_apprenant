@@ -1,3 +1,4 @@
+import { ICryptage } from 'src/cryptage/interface/ICryptage';
 import {
   Column,
   CreateDateColumn,
@@ -34,13 +35,13 @@ export class WebinaireApprenantEntity {
   })
   niveau: string;
 
-  @Column({ type: 'varchar', nullable: false })
-  image: string;
+  @Column({ type: 'jsonb', nullable: false })
+  image: ICryptage;
 
-  @Column({ type: 'varchar', nullable: false })
-  source: string;
+  @Column({ type: 'jsonb', nullable: false })
+  source: ICryptage;
 
-  @Column({ type: 'boolean', nullable: false, default: false })
+  @Column({ type: 'boolean', nullable: false, default: true })
   status: boolean;
 
   @CreateDateColumn({ type: 'timestamp with time zone' })
