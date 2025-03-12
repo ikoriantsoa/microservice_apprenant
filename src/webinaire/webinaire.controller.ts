@@ -48,4 +48,14 @@ export class WebinaireController {
 
     return this.webinaireService.createWebinaire(dataWebinaire);
   }
+
+  @MessagePattern('getAllWebinaireApprenant')
+  public getWebinaireByKeycloakId(keycloak_id: string) {
+    return this.webinaireService.getAllWebinaireByKeycloakId(keycloak_id);
+  }
+
+  @MessagePattern('getAllWebinaire')
+  public getAllWebinaire() {
+    return this.webinaireService.getAllWebinaireApprenant();
+  }
 }

@@ -6,14 +6,15 @@ import { CryptageService } from 'src/cryptage/cryptage.service';
 import { ICreateApprenant } from './entity/ICreateApprenant';
 import { MessagePattern } from '@nestjs/microservices';
 import { ICryptage } from 'src/cryptage/interface/ICryptage';
+import { WebinaireApprenantEntity } from 'src/webinaire/entity/webinaire.entity';
 
 interface IData {
-    keycloak_id: string;
-    username: ICryptage;
-    email: ICryptage;
-    firstname: ICryptage;
-    lastname: ICryptage;
-    adresse: ICryptage;
+  keycloak_id: string;
+  username: ICryptage;
+  email: ICryptage;
+  firstname: ICryptage;
+  lastname: ICryptage;
+  adresse: ICryptage;
 }
 
 @Injectable()
@@ -21,6 +22,8 @@ export class ApprenantService {
   constructor(
     @InjectRepository(ApprenantEntity)
     private readonly apprenantRepository: Repository<ApprenantEntity>,
+    @InjectRepository(WebinaireApprenantEntity)
+    private readonly webinaireRepository: Repository<WebinaireApprenantEntity>,
     private readonly cryptageService: CryptageService,
   ) {}
 
@@ -41,7 +44,44 @@ export class ApprenantService {
       adresse: this.cryptageService.encrypt(newApprenant.adresse),
     };
 
-    const apprenant: ApprenantEntity = this.apprenantRepository.create(cryptApprenant);
+    const apprenant: ApprenantEntity =
+      this.apprenantRepository.create(cryptApprenant);
     return await this.apprenantRepository.save(apprenant);
+  }
+
+  public async getAllWebinaireAlternant() {
+    const apprenants = await this.webinaireRepository.find();
+
+    const decryptedWebinaire = apprenants.map((web) => ({
+      titre: web.titre,
+      categorie: web.categorie,
+      type: web.type,
+      niveau: web.niveau,
+      image: this.cryptageService.decrypt(web.image),
+      source: this.cryptageService.decrypt(web.source),
+    }));
+
+    return decryptedWebinaire;
+  }
+
+  public async getAllWebinaireByKeycloakId(keycloak_id: string) {
+    const webinaire = await this.webinaireRepository.find({
+      where: { keycloak_id_auteur: keycloak_id },
+    });
+
+    if (webinaire.length === 0) {
+      return [];
+    }
+
+    const decryptedWebinaire = webinaire.map((web) => ({
+      titre: web.titre,
+      categorie: web.categorie,
+      type: web.type,
+      niveau: web.niveau,
+      image: this.cryptageService.decrypt(web.image),
+      source: this.cryptageService.decrypt(web.source),
+    }));
+
+    return decryptedWebinaire;
   }
 }

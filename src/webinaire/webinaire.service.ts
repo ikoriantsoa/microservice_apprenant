@@ -49,7 +49,6 @@ export class WebinaireService {
       where: { keycloak_id: keycloak_id_auteur },
     });
     console.log('apprenant', apprenant);
-    
 
     if (!apprenant) {
       throw new NotFoundException(`Le compte apprenant n'existe pas`);
@@ -72,8 +71,47 @@ export class WebinaireService {
     });
 
     console.log(webinaire);
-    
 
     return await this.webinaireApprenantEntity.save(webinaire);
+  }
+
+  public async getAllWebinaireApprenant() {
+    const apprenant = await this.webinaireApprenantEntity.find();
+
+    const decryptedWebinaire = apprenant.map((web) => ({
+      webinaire_id: web.webinaire_apprenant_id,
+      date: web.updatedAt,
+      titre: web.titre,
+      categorie: web.categorie,
+      type: web.type,
+      niveau: web.niveau,
+      image: this.cryptageService.decrypt(web.image),
+      source: this.cryptageService.decrypt(web.source),
+    }));
+
+    return decryptedWebinaire;
+  }
+
+  public async getAllWebinaireByKeycloakId(keycloak_id: string) {
+    const webinaire = await this.webinaireApprenantEntity.find({
+      where: { keycloak_id_auteur: keycloak_id },
+    });
+
+    if (webinaire.length === 0) {
+      return [];
+    }
+
+    const decryptedWebinaire = webinaire.map((web) => ({
+      webinaire_id: web.webinaire_apprenant_id,
+      date: web.updatedAt,
+      titre: web.titre,
+      categorie: web.categorie,
+      type: web.type,
+      niveau: web.niveau,
+      image: this.cryptageService.decrypt(web.image),
+      source: this.cryptageService.decrypt(web.source),
+    }));
+
+    return decryptedWebinaire;
   }
 }
