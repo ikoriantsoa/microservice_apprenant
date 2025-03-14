@@ -5,12 +5,10 @@ import { MessagePattern } from '@nestjs/microservices';
 
 @Controller()
 export class ApprenantController {
-    constructor(private readonly apprenantService: ApprenantService) {}
+  constructor(private readonly apprenantService: ApprenantService) {}
 
-    @MessagePattern('createApprenant')
-    public createApprenant(dataApprenant: ICreateApprenant) {
-        return this.apprenantService.createApprenant(dataApprenant);
-    }
-
-    
+  @MessagePattern('createApprenant')
+  public createApprenant(dataApprenant: ICreateApprenant) {
+    return this.apprenantService.createApprenant(dataApprenant);
+  }
 }

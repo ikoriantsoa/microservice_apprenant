@@ -24,24 +24,31 @@ export class WebinaireController {
     }
 
     const imageFilePath = `/talentup/images/${Date.now()}-${image.originalname}`;
-    const sourceFilePath = `/talentup/sources/${Date.now()}-${source.originalname}`;
-
     const imageUrl = await this.nextcloudService.uploadFile(
       imageFilePath,
       image.buffer,
     );
-    console.log('imageUrl ', imageUrl);
+    console.log('imageUrl: ', imageUrl);
+    
+    const imagePublicLink = await this.nextcloudService.createPublicLink(imageFilePath);
+    console.log('imagePublicLink: ', imagePublicLink);
+    
 
+    const sourceFilePath = `/talentup/sources/${Date.now()}-${source.originalname}`;
     const sourceUrl = await this.nextcloudService.uploadFile(
       sourceFilePath,
       source.buffer,
     );
-    console.log('sourceUrl', sourceUrl);
+    console.log('sourceUrl: ', sourceUrl);
+
+    const sourcePublicLink = await this.nextcloudService.createPublicLink(sourceFilePath);
+    console.log('sourcePubliLink: ', sourcePublicLink);
+    
 
     const dataWebinaire = {
       ...dataInfoWebinaire,
-      image: imageUrl,
-      source: sourceUrl,
+      image: imagePublicLink,
+      source: sourcePublicLink,
     };
     console.log(dataWebinaire);
     
@@ -57,5 +64,10 @@ export class WebinaireController {
   @MessagePattern('getAllWebinaire')
   public getAllWebinaire() {
     return this.webinaireService.getAllWebinaireApprenant();
+  }
+
+  @MessagePattern('getWebinaireById')
+  public getWebinaireById(webinaireId: string) {
+    return this.webinaireService.getWebinaireById(webinaireId);
   }
 }

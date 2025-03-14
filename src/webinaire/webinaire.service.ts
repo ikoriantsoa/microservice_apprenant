@@ -45,17 +45,17 @@ export class WebinaireService {
       source,
     } = dataWebinaire;
 
-    const apprenant = await this.apprenantRepository.findOne({
-      where: { keycloak_id: keycloak_id_auteur },
-    });
-    console.log('apprenant', apprenant);
+    // const apprenant = await this.apprenantRepository.findOne({
+    //   where: { keycloak_id: keycloak_id_auteur },
+    // });
+    // console.log('apprenant', apprenant);
 
-    if (!apprenant) {
-      throw new NotFoundException(`Le compte apprenant n'existe pas`);
-    }
+    // if (!apprenant) {
+    //   throw new NotFoundException(`Le compte apprenant n'existe pas`);
+    // }
 
-    apprenant.partage = false;
-    await this.apprenantRepository.save(apprenant);
+    // apprenant.partage = false;
+    // await this.apprenantRepository.save(apprenant);
 
     const encryptedImage = this.cryptageService.encrypt(image);
     const encryptedSource = this.cryptageService.encrypt(source);
@@ -114,4 +114,23 @@ export class WebinaireService {
 
     return decryptedWebinaire;
   }
+
+  public async  getWebinaireById(webinaireId: string) {
+    const webinaire = await this.webinaireApprenantEntity.findOne({
+      where: {webinaire_apprenant_id: webinaireId},
+    });
+
+    const decryptedWebinaire = {
+      date: webinaire!.createdAt,
+      titre: webinaire!.titre,
+      categorie: webinaire!.categorie,
+      type: webinaire!.type,
+      niveau: webinaire!.niveau,
+      image: this.cryptageService.decrypt(webinaire!.image),
+      source: this.cryptageService.decrypt(webinaire!.source),
+    };
+
+    return decryptedWebinaire;
+  }
+
 }
