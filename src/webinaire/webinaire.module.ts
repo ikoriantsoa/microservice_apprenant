@@ -8,10 +8,11 @@ import { CryptageModule } from 'src/cryptage/cryptage.module';
 import { CryptageService } from 'src/cryptage/cryptage.service';
 import { NextcloudModule } from 'src/nextcloud/nextcloud.module';
 import { NextcloudService } from 'src/nextcloud/nextcloud.service';
+import { ControleWebinaireEntity } from './entity/controle-webinaire.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ApprenantEntity, WebinaireApprenantEntity]),
+    TypeOrmModule.forFeature([ApprenantEntity, WebinaireApprenantEntity, ControleWebinaireEntity]),
     CryptageModule, NextcloudModule
   ],
   controllers: [WebinaireController],

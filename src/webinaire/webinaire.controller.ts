@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-} from '@nestjs/common';
+import { BadRequestException, Body, Controller } from '@nestjs/common';
 import { WebinaireService } from './webinaire.service';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { NextcloudService } from 'src/nextcloud/nextcloud.service';
@@ -23,27 +19,27 @@ export class WebinaireController {
       throw new BadRequestException('Les fichiers image et souce sont requis.');
     }
 
-    const imageFilePath = `/talentup/images/${Date.now()}-${image.originalname}`;
+    const imageFilePath = `/talentup/apprenants/images/${Date.now()}-${image.originalname}`;
     const imageUrl = await this.nextcloudService.uploadFile(
       imageFilePath,
       image.buffer,
     );
     console.log('imageUrl: ', imageUrl);
-    
-    const imagePublicLink = await this.nextcloudService.createPublicLink(imageFilePath);
-    console.log('imagePublicLink: ', imagePublicLink);
-    
 
-    const sourceFilePath = `/talentup/sources/${Date.now()}-${source.originalname}`;
+    const imagePublicLink =
+      await this.nextcloudService.createPublicLink(imageFilePath);
+    console.log('imagePublicLink: ', imagePublicLink);
+
+    const sourceFilePath = `/talentup/apprenants/sources/${Date.now()}-${source.originalname}`;
     const sourceUrl = await this.nextcloudService.uploadFile(
       sourceFilePath,
       source.buffer,
     );
     console.log('sourceUrl: ', sourceUrl);
 
-    const sourcePublicLink = await this.nextcloudService.createPublicLink(sourceFilePath);
+    const sourcePublicLink =
+      await this.nextcloudService.createPublicLink(sourceFilePath);
     console.log('sourcePubliLink: ', sourcePublicLink);
-    
 
     const dataWebinaire = {
       ...dataInfoWebinaire,
@@ -51,7 +47,6 @@ export class WebinaireController {
       source: sourcePublicLink,
     };
     console.log(dataWebinaire);
-    
 
     return this.webinaireService.createWebinaire(dataWebinaire);
   }
@@ -67,7 +62,7 @@ export class WebinaireController {
   }
 
   @MessagePattern('getWebinaireById')
-  public getWebinaireById(webinaireId: string) {
-    return this.webinaireService.getWebinaireById(webinaireId);
+  public getWebinaireById(@Payload() data: {webinaireId: string; keycloak_id_auteur: string}) {
+    return this.webinaireService.getWebinaireById(data);
   }
 }

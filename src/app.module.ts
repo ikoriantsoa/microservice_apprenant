@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ApprenantEntity } from './apprenant/entity/apprenant.entity';
 import { WebinaireApprenantEntity } from './webinaire/entity/webinaire.entity';
 import { CryptageModule } from './cryptage/cryptage.module';
+import { ControleWebinaireEntity } from './webinaire/entity/controle-webinaire.entity';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -20,7 +21,7 @@ import { CryptageModule } from './cryptage/cryptage.module';
     port: Number(process.env.DB_PORT),
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
-    entities: [ApprenantEntity, WebinaireApprenantEntity],
+    entities: [ApprenantEntity, WebinaireApprenantEntity, ControleWebinaireEntity],
     synchronize: true,
   })
   ,ApprenantModule, WebinaireModule, NextcloudModule, CryptageModule],
