@@ -7,6 +7,7 @@ import { ICreateApprenant } from './entity/ICreateApprenant';
 import { MessagePattern } from '@nestjs/microservices';
 import { ICryptage } from 'src/cryptage/interface/ICryptage';
 import { WebinaireApprenantEntity } from 'src/webinaire/entity/webinaire.entity';
+import { LoggerService } from 'src/logger/logger.service';
 
 interface IData {
   keycloak_id: string;
@@ -25,6 +26,7 @@ export class ApprenantService {
     @InjectRepository(WebinaireApprenantEntity)
     private readonly webinaireRepository: Repository<WebinaireApprenantEntity>,
     private readonly cryptageService: CryptageService,
+    private readonly logger: LoggerService,
   ) {}
 
   /**
@@ -35,6 +37,7 @@ export class ApprenantService {
   public async createApprenant(
     newApprenant: ICreateApprenant,
   ): Promise<ApprenantEntity> {
+    this.logger.log(`Service pour créer un webinaire`);
     const cryptApprenant: IData = {
       keycloak_id: newApprenant.keycloak_id,
       username: this.cryptageService.encrypt(newApprenant.username),
@@ -46,10 +49,12 @@ export class ApprenantService {
 
     const apprenant: ApprenantEntity =
       this.apprenantRepository.create(cryptApprenant);
+    this.logger.log(`Création d'un webinaire dans la base de données`);
     return await this.apprenantRepository.save(apprenant);
   }
 
   public async getAllWebinaireAlternant() {
+    this.logger.log(`Méthode pour prendre tous les webinaires d'un apprenant`);
     const apprenants = await this.webinaireRepository.find();
 
     const decryptedWebinaire = apprenants.map((web) => ({
@@ -61,10 +66,12 @@ export class ApprenantService {
       source: this.cryptageService.decrypt(web.source),
     }));
 
+    this.logger.log(`Affichage des informations du webinaire`);
     return decryptedWebinaire;
   }
 
   public async getAllWebinaireByKeycloakId(keycloak_id: string) {
+    this.logger.log(`Service pour afficher les webinaires de l'id keycloak`);
     const webinaire = await this.webinaireRepository.find({
       where: { keycloak_id_auteur: keycloak_id },
     });
@@ -81,6 +88,7 @@ export class ApprenantService {
       image: this.cryptageService.decrypt(web.image),
       source: this.cryptageService.decrypt(web.source),
     }));
+    this.logger.log(`Affichage dde webinaires`);
 
     return decryptedWebinaire;
   }

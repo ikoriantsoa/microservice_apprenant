@@ -6,11 +6,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CryptageModule } from 'src/cryptage/cryptage.module';
 import { CryptageService } from 'src/cryptage/cryptage.service';
 import { ApprenantController } from './apprenant.controller';
+import { LoggerModule } from 'src/logger/logger.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([ApprenantEntity, WebinaireApprenantEntity]),
     CryptageModule,
+    LoggerModule
   ],
   providers: [ApprenantService, CryptageService],
   controllers: [ApprenantController],

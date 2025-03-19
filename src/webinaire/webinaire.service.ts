@@ -11,6 +11,7 @@ import { ICreateWebinaire } from './entity/ICreateWebinaire';
 import { ICryptage } from 'src/cryptage/interface/ICryptage';
 import { ApprenantEntity } from 'src/apprenant/entity/apprenant.entity';
 import { ControleWebinaireEntity } from './entity/controle-webinaire.entity';
+import { LoggerService } from 'src/logger/logger.service';
 
 interface IWebinaire {
   keycloak_id_auteur: string;
@@ -32,7 +33,10 @@ export class WebinaireService {
     @InjectRepository(ControleWebinaireEntity)
     private readonly controleWebinaireRepository: Repository<ControleWebinaireEntity>,
     private readonly cryptageService: CryptageService,
-  ) {}
+    private readonly logger: LoggerService,
+  ) {
+    this.logger.setContext(WebinaireService.name);
+  }
 
   /**
    * Ce service permet de créer un nouveau apprenant dans la base de données
@@ -42,6 +46,7 @@ export class WebinaireService {
   public async createWebinaire(
     dataWebinaire: ICreateWebinaire,
   ): Promise<WebinaireApprenantEntity> {
+    this.logger.log(`Service pour créer un webinaire`);
     const {
       keycloak_id_auteur,
       titre,
@@ -65,12 +70,10 @@ export class WebinaireService {
       source: encryptedSource,
     });
 
-    console.log(webinaire);
 
     const apprenant = await this.apprenantRepository.findOne({
       where: { keycloak_id: keycloak_id_auteur },
     });
-    console.log('apprenant: ', apprenant);
 
     if (!apprenant) {
       throw new NotFoundException(`Le compte apprenant n' existe pas`);
@@ -78,11 +81,13 @@ export class WebinaireService {
 
     apprenant.partage = true;
     await this.apprenantRepository.save(apprenant);
-
+    
+    this.logger.log(`Enregistrement dans la base de données`);
     return await this.webinaireApprenantEntity.save(webinaire);
   }
 
   public async getAllWebinaireApprenant() {
+    this.logger.log(`Service pour voir un webinaire`);
     const apprenant = await this.webinaireApprenantEntity.find();
 
     const decryptedWebinaire = apprenant.map((web) => ({
@@ -95,10 +100,12 @@ export class WebinaireService {
       image: this.cryptageService.decrypt(web.image),
     }));
 
+    this.logger.log(`Affichage du webinaire`);
     return decryptedWebinaire;
   }
 
   public async getAllWebinaireByKeycloakId(keycloak_id: string) {
+    this.logger.log(`Service pour voir tous les webinaires d'un apprenant`);
     const webinaire = await this.webinaireApprenantEntity.find({
       where: { keycloak_id_auteur: keycloak_id },
     });
@@ -118,6 +125,7 @@ export class WebinaireService {
       source: this.cryptageService.decrypt(web.source),
     }));
 
+    this.logger.log(`Affichage de tous les webinaires de l'étudiant`);
     return decryptedWebinaire;
   }
 
@@ -125,6 +133,7 @@ export class WebinaireService {
     webinaireId: string;
     keycloak_id_auteur: string;
   }) {
+    this.logger.log(`Service pour prendre un webinaire d'un étudiant`);
     const { webinaireId, keycloak_id_auteur } = data;
 
     try {
@@ -144,7 +153,6 @@ export class WebinaireService {
       const controleWebinaire = await this.controleWebinaireRepository.find({
         where: { webinaire_id: webinaireId, keycloak_id: keycloak_id_auteur },
       });
-      console.warn('controleWebinaire : ', controleWebinaire);
 
       const webinaire = await this.webinaireApprenantEntity.findOne({
         where: { webinaire_apprenant_id: webinaireId },
@@ -173,6 +181,7 @@ export class WebinaireService {
           source: this.cryptageService.decrypt(webinaire!.source),
         };
 
+        this.logger.log(`Affichage d'un webinaire`);
         return dataWebinaire;
       }
 
@@ -188,6 +197,7 @@ export class WebinaireService {
           source: this.cryptageService.decrypt(webinaire!.source),
         };
 
+        this.logger.log(`Affichage d'un webinaire`);
         return dataWebinaire;
       }
 
@@ -203,6 +213,7 @@ export class WebinaireService {
           source: this.cryptageService.decrypt(webinaire!.source),
         };
 
+        this.logger.log(`Affichage d'un webinaire`);
         return dataWebinaire;
       }
 
@@ -213,7 +224,7 @@ export class WebinaireService {
         );
       }
     } catch (error) {
-      console.error('Erreur dans getWebinaireById :', error);
+      this.logger.error(`Erreur dans getWebinaireById : ${error}`)
 
       if (
         error instanceof NotFoundException ||
@@ -222,6 +233,7 @@ export class WebinaireService {
         throw error; // Propager les exceptions personnalisées
       }
 
+      this.logger.error(`Une erreur est survenue lors de la récupération du webinaire.`)
       throw new ForbiddenException(
         `Une erreur est survenue lors de la récupération du webinaire.`,
       );
