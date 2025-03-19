@@ -59,22 +59,22 @@ export class WebinaireController {
 
     try {
       // Upload de l'image
-      const imageUrl = await this.nextcloudService.uploadFile(
+      await this.nextcloudService.uploadFileImage(
         imageFilePath,
         image.buffer,
       );
 
       const imagePublicLink =
-        await this.nextcloudService.createPublicLink(imageUrl);
+        await this.nextcloudService.createPublicLink(imageFilePath);
 
       // Upload de la source
-      const sourceUrl = await this.nextcloudService.uploadFile(
+      await this.nextcloudService.uploadFileSource(
         sourceFilePath,
         source.buffer,
       );
 
       const sourcePublicLink =
-        await this.nextcloudService.createPublicLink(sourceUrl);
+        await this.nextcloudService.createPublicLink(sourceFilePath);
 
       // Préparation des données pour le webinaire
       const dataWebinaire = {

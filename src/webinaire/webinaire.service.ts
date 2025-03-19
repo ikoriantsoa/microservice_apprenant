@@ -70,7 +70,7 @@ export class WebinaireService {
       source: encryptedSource,
     });
 
-
+    this.logger.log(`Service pour créer un webinaire 2`);
     const apprenant = await this.apprenantRepository.findOne({
       where: { keycloak_id: keycloak_id_auteur },
     });
@@ -78,10 +78,10 @@ export class WebinaireService {
     if (!apprenant) {
       throw new NotFoundException(`Le compte apprenant n' existe pas`);
     }
-
+    this.logger.log(`Service pour créer un webinaire 3`);
     apprenant.partage = true;
     await this.apprenantRepository.save(apprenant);
-    
+    this.logger.log(`Service pour créer un webinaire 4`);
     this.logger.log(`Enregistrement dans la base de données`);
     return await this.webinaireApprenantEntity.save(webinaire);
   }
@@ -224,7 +224,7 @@ export class WebinaireService {
         );
       }
     } catch (error) {
-      this.logger.error(`Erreur dans getWebinaireById : ${error}`)
+      this.logger.error(`Erreur dans getWebinaireById : ${error}`);
 
       if (
         error instanceof NotFoundException ||
@@ -233,7 +233,9 @@ export class WebinaireService {
         throw error; // Propager les exceptions personnalisées
       }
 
-      this.logger.error(`Une erreur est survenue lors de la récupération du webinaire.`)
+      this.logger.error(
+        `Une erreur est survenue lors de la récupération du webinaire.`,
+      );
       throw new ForbiddenException(
         `Une erreur est survenue lors de la récupération du webinaire.`,
       );

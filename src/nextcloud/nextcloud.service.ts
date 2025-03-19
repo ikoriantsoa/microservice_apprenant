@@ -29,7 +29,7 @@ export class NextcloudService {
     }
   }
 
-  public async uploadFile(
+  public async uploadFileSource(
     filePath: string,
     fileBuffer: Buffer,
   ): Promise<string> {
@@ -40,7 +40,44 @@ export class NextcloudService {
     try {
       await axios.put(url, fileBuffer, {
         headers: {
-          'Content-Type': 'application/octet-stream',
+          'Content-Type': 'video/mp4',
+        },
+        auth: this.auth,
+      });
+      console.log('Fichier uploader:', url);
+      return url;
+    } catch (error) {
+      console.error(`Erreur lors de l'upload du fichier`, error);
+      throw error;
+    }
+  }
+
+  public async uploadFileImage(
+    filePath: string,
+    fileBuffer: Buffer,
+  ): Promise<string> {
+    const directoryPath = filePath.substring(0, filePath.lastIndexOf('/'));
+    await this.createDirectory(directoryPath);
+  
+    const url = `${this.baseUrl}${filePath}`;
+  
+    const mimeTypes: { [key: string]: string } = {
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.gif': 'image/gif',
+      '.bmp': 'image/bmp',
+      '.webp': 'image/webp',
+    };
+  
+    const extension = filePath.substring(filePath.lastIndexOf('.')).toLowerCase();
+  
+    const mimeType = mimeTypes[extension];
+  
+    try {
+      await axios.put(url, fileBuffer, {
+        headers: {
+          'Content-Type': mimeType,
         },
         auth: this.auth,
       });
